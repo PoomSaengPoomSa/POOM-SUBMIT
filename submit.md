@@ -37,8 +37,7 @@
 
 ### 설명
 
-본 시스템은 고가용성과 보안성을 확보하기 위해 AWS Private Subnet 내에 핵심 인프라를 격리한 멀티 티어 구조입니다. 웹 클라이언트 요청은 AWS ALB를 거쳐 FastAPI 백엔드로 전달되며, 복잡한 멀티 에이전트의 상태 관리 및 동적 라우팅은 LangGraph 기반 AI 서버가 전담하여 비동기로 처리합니다. 데이터 레이어는 정형 데이터를 관리하는 MySQL, 하이브리드 RAG용 Chroma Vector DB, 모델 및 리포트 저장용 Amazon S3로 다각화했습니다. 인프라 후행 파이프라인으로는 Apache Airflow와 MLflow 기반의 MLOps 체계를 구축하고, ELK 스택을 통합하여 서비스 로그 및 크롤링 데이터를 실시간 모니터링 대시보드에 시각화합니다.
-
+본 시스템은 AWS VPC 환경 내에서 퍼블릭/프라이빗 서브넷을 철저히 격리하여 보안성을 극대화한 클라우드 네이티브 아키텍처입니다. 클라이언트 트래픽은 AWS ALB를 통해 프라이빗 망의 FastAPI 백엔드 및 LangGraph AI 서버로 안전하게 분산되며, 외부 API 연동은 NAT Gateway로 통제됩니다. 데이터는 MySQL, Chroma DB, Amazon S3에 목적별로 분산 저장되고, Apache Airflow 기반의 MLOps와 ELK 스택 로깅 파이프라인이 유기적으로 통합되어 안정적인 AI 서비스를 제공합니다.
 
 ### 2-2. AI 에이전트 워크플로우 (AI 엔지니어링 과정만 해당)
 ### 2-2-1 AI 전체 워크플로우
@@ -110,15 +109,20 @@ if routing.run_product_matching:
 ```python
 # LangGraph 기반 AI To Do Agent 워크플로우 생성
 workflow = StateGraph(AgentState)
-
+# 노드 등록 (상태분석 ➔ 목표수립 ➔ 계획 ➔ 실행 ➔ 평가 ➔ 반성)
+workflow.add_node("state_analyzer", state_analyzer_node)
+workflow.add_node("goal_selector", goal_selector_node)
 workflow.add_node("planner", planner_node)
 workflow.add_node("executor", executor_node)
 workflow.add_node("evaluator", evaluator_node)
 workflow.add_node("reflection", reflection_node)
-
+# 워크플로우 진입점 설정 및 초기 엣지 연결
+workflow.set_entry_point("state_analyzer")
+workflow.add_edge("state_analyzer", "goal_selector")
+workflow.add_edge("goal_selector", "planner")
+# 계획에서 실행, 실행에서 평가 노드로 연결
 workflow.add_edge("planner", "executor")
 workflow.add_edge("executor", "evaluator")
-
 # Evaluator 이후 조건부 라우팅 설정 (검증 실패 시 reflection 전이)
 workflow.add_conditional_edges(
     "evaluator",
@@ -128,11 +132,9 @@ workflow.add_conditional_edges(
         "reflection": "reflection" # 추천 일정 충돌 시 반성 노드로 라우팅
     }
 )
-
-# Reflection(반성) 완료 후 다시 Planner로 전이하여 교정된 계획 수립
+# Reflection(반성) 완료 후 다시 Planner로 전이하여 교정된 계획 수립 (재귀)
 workflow.add_edge("reflection", "planner")
 return workflow.compile()
-
 ```
 
 
