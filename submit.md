@@ -26,7 +26,7 @@
 
 ### 2-1. 시스템 아키텍쳐
 
-![alt text](image.png)
+![alt text](img/image.png)
 
 ### 설명
 
