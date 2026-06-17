@@ -50,13 +50,14 @@
 시스템 내에는 총 6개의 주요 Agent 및 LLM이 동작합니다. '고객 분석 Agent(Main)'가 분석 대상을 선별하고 서브 에이전트를 동적으로 라우팅합니다. 이 결과를 바탕으로 'AI To-Do Agent'가 PB의 캘린더에 일정을 적재하며, '방문 브리핑 LLM', '시뮬레이션 Agent', '메모 구조화 LLM' 등이 상담 전후의 업무를 자동화하고 구조화하여 DB에 저장하는 파이프라인으로 구성되어 있습니다.
 
 ### 2-2-2 고객 분석 Agent 워크 플로우
-![alt text](image-3.png)
+<img src="image-3.png" width="60%">
 
 ### 2-2-3 시뮬레이션 Agent 워크 플로우
 ![alt text](image-5.png)
 
 ### 2-2-4 특징 추출 Agent 워크 플로우
-![alt text](image-8.png)
+<img src="image-8.png" width="70%">
+
 
 ### 2-2-5 AI TODO Agent 워크 플로우
 ![alt text](image-7.png)
@@ -142,11 +143,44 @@ return workflow.compile()
 
 * **기능 설명** : 고객 방문 전 요약 브리핑 리포트를 생성하고, 상담 중에는 시뮬레이터가 하이브리드 RAG 검색을 통해 세일즈 팁을 제공합니다. 상담 후 남긴 메모는 구조화 LLM을 통해 DB에 정형 데이터로 자동 저장되며, 고객의 특징과 키워드가 지식 베이스로 추출됩니다.
 * **핵심 코드(스크립트)** :
-* **코드 링크(스크립트 링크)** : `agent/feature/feature_agent.py` 및 `agent/simulator/simulator.py` 참조
 
+```python
+# 1. [상담 전] 고객 정보 종합 및 방문 예정 브리핑 자동 생성 (visit_brief_generator.py)
+completion = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": "당신은 우량 고객 자산관리 비서 전문가입니다. 항상 정해진 마커 포맷으로 정밀하고 개별화된 보고서를 반환합니다."},
+        {"role": "user", "content": prompt} # 자산, 거래내역, 최근 메모 등 통합 정보
+    ],
+    temperature=0.3
+)
+briefing_text = completion.choices[0].message.content
 
-제공해주신 `interpret_xai.py`와 `feature_agent.py`의 코드를 분석하여, 요청하신 세부 기능 소개의 빈 공간을 작성해 드립니다.
+# 2. [상담 중] 의도 파악 및 하이브리드 RAG 시뮬레이터 워크플로우 (simulator.py)
+workflow = StateGraph(SimulatorState)
 
+workflow.add_node("load_context", load_context_node)
+workflow.add_node("route_intent", route_intent_node)
+# knowledge_node: VectorDB 매칭 + Tavily 웹 검색 폴백 + 실시간 상품 DB 통합
+workflow.add_node("knowledge", knowledge_node) 
+workflow.add_node("generate_answer", generate_answer_node)
+
+# 대화 의도(intent)에 따라 지식 검색 여부를 동적으로 라우팅
+workflow.add_conditional_edges(
+    "route_intent",
+    route_conditional_edge,
+    {
+        "knowledge": "knowledge",
+        "generate_answer": "generate_answer"
+    }
+)
+
+```
+
+* **코드 링크(스크립트 링크)** :
+* `poomsaengpoomsa/poom-ai/llm/visit_brief/visit_brief_generator.py`
+* `poomsaengpoomsa/poom-ai/agent/simulator/simulator.py`
+* `poomsaengpoomsa/poom-ai/agent/feature/feature_agent.py`
 
 
 #### [ML, XAI 기반 시장 분석 인사이트]
