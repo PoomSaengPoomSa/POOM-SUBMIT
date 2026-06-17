@@ -1,5 +1,19 @@
 # [우리FISA 6기] AI 엔지니어링 과정 1팀 (프로젝트 Submit.md)
 
+
+### 연관 레포지토리
+
+| 레포 | 역할 |
+|---|---|
+| [POOM-BACK](https://github.com/PoomSaengPoomSa/POOM-BACK) | FastAPI 백엔드 서버 |
+| [POOM-FRONT](https://github.com/PoomSaengPoomSa/POOM-FRONT) | React 프론트엔드 |
+| [POOM-AI](https://github.com/PoomSaengPoomSa/POOM-AI) | LangGraph 멀티 에이전트 |
+| [POOM-AIRFLOW](https://github.com/PoomSaengPoomSa/POOM-AIRFLOW) | Airflow 서버 및 Dags |
+| [POOM-MLFLOW](https://github.com/PoomSaengPoomSa/POOM-MLFLOW) | MLflow 서버 |
+| [POOM-ELK](https://github.com/PoomSaengPoomSa/POOM-ELK) | ELK 서버 |
+
+
+
 ## 1. 프로젝트 개요
 
 * **주제** : POOM: PB(Private Banker)를 위한 AI Assistant (생성형 AI 기반 스마트 워크 에이전트-대직원 서비스)
