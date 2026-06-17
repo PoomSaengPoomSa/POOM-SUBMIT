@@ -34,7 +34,7 @@
 사용자가 React 기반 Frontend를 통해 HTTP 요청을 보내면 AWS 환경의 Backend Server와 통신합니다. Backend는 LangGraph 기반의 AI Server로 작업을 넘기며, AI Server는 OpenAI, Tavily 등 외부 API와 통신하여 데이터를 처리합니다. 각종 데이터는 MySQL, ChromaDB, Amazon S3 및 Elasticsearch에 저장되며, ML 모델 관리를 위해 Airflow와 MLflow 파이프라인이 유기적으로 연결되어 동작합니다.
 
 ### 서버 아키텍처
-![alt text](image-1.png)
+![alt text](img/image-1.png)
 
 ### 설명
 
@@ -43,24 +43,24 @@
 
 ### 2-2. AI 에이전트 워크플로우 (AI 엔지니어링 과정만 해당)
 ### 2-2-1 AI 전체 워크플로우
-![alt text](image-2.png)
+![alt text](img/image-2.png)
 
 ### 설명
 
 시스템 내에는 총 6개의 주요 Agent 및 LLM이 동작합니다. '고객 분석 Agent(Main)'가 분석 대상을 선별하고 서브 에이전트를 동적으로 라우팅합니다. 이 결과를 바탕으로 'AI To-Do Agent'가 PB의 캘린더에 일정을 적재하며, '방문 브리핑 LLM', '시뮬레이션 Agent', '메모 구조화 LLM' 등이 상담 전후의 업무를 자동화하고 구조화하여 DB에 저장하는 파이프라인으로 구성되어 있습니다.
 
 ### 2-2-2 고객 분석 Agent 워크 플로우
-<img src="image-3.png" width="60%">
+<img src="img/image-3.png" width="60%">
 
 ### 2-2-3 시뮬레이션 Agent 워크 플로우
-![alt text](image-5.png)
+![alt text](img/image-5.png)
 
 ### 2-2-4 특징 추출 Agent 워크 플로우
-<img src="image-8.png" width="70%">
+<img src="img/image-8.png" width="70%">
 
 
 ### 2-2-5 AI TODO Agent 워크 플로우
-![alt text](image-7.png)
+![alt text](img/image-7.png)
 
 ## 3. 주요 기능 소개
 
@@ -71,7 +71,7 @@
 3. **XAI 기반 경제지표 예측 및 자동 보고서 파이프라인**: 거시경제 데이터를 기반으로 예측 모델을 구축하고, SHAP 기술을 적용하여 변수 기여도를 수치화한 뒤 LLM을 통해 자연어 심층 분석 보고서로 자동 생성합니다.
 
 ### 3-2. 통합 워크플로우 다이어그램
-![alt text](image-11.png)
+![alt text](img/image-11.png)
 
 ### 3-3. 세부 기능 소개
 
